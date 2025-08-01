@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HexMap Viewer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>HexMap Viewer</h1>
+        <nav>
+            <a href="settings.html" class="settings-link">Settings</a>
+        </nav>
+    </header>
+    
+    <main>
+        <div id="map-container">
+            <svg id="hex-grid" viewBox="0 0 800 600"></svg>
+        </div>
+    </main>
+
+    <!-- Hex Info Modal -->
+    <div id="hex-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Hex Information</h2>
+            <div class="hex-info">
+                <div class="info-section">
+                    <label>Biome:</label>
+                    <span id="hex-biome">-</span>
+                </div>
+                <div class="info-section">
+                    <label>Feature:</label>
+                    <span id="hex-feature">-</span>
+                </div>
+                <div class="info-section">
+                    <label>Notes:</label>
+                    <textarea id="hex-notes" rows="3" placeholder="Add your notes here..."></textarea>
+                </div>
+                <div class="info-section">
+                    <label>Neighbors:</label>
+                    <div id="hex-neighbors" class="neighbors-info"></div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="save-hex">Save</button>
+                <button id="cancel-hex">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

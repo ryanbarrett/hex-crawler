@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HexMap Settings</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Map Settings</h1>
+        <nav>
+            <a href="index.html" class="back-link">← Back to Map</a>
+        </nav>
+    </header>
+    
+    <main class="settings-main">
+        <section class="settings-section">
+            <h2>Map Management</h2>
+            <div class="map-controls">
+                <div class="control-group">
+                    <label for="map-select">Active Map:</label>
+                    <select id="map-select">
+                        <option value="">Select a map...</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <input type="text" id="new-map-name" placeholder="Enter new map name">
+                    <button id="create-map">Create Map</button>
+                </div>
+                <div class="control-group">
+                    <button id="rename-map">Rename</button>
+                    <button id="delete-map" class="danger">Delete</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <h2>Import/Export</h2>
+            <div class="import-export-controls">
+                <div class="control-group">
+                    <button id="export-maps">Export All Maps</button>
+                    <small>Downloads JSON file with all your maps</small>
+                </div>
+                <div class="control-group">
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                    <button id="import-maps">Import Maps</button>
+                    <small>Upload JSON file to import maps</small>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/settings.js"></script>
+</body>
+</html>
