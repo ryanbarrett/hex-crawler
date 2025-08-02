@@ -23,7 +23,8 @@ class MapSettings {
                     hexes: {}
                 }
             },
-            activeMap: 'Default Map'
+            activeMap: 'Default Map',
+            explorationMode: false
         };
     }
 
@@ -44,6 +45,12 @@ class MapSettings {
             }
             select.appendChild(option);
         });
+        
+        // Update exploration mode checkbox
+        const explorationModeCheckbox = document.getElementById('exploration-mode');
+        if (explorationModeCheckbox) {
+            explorationModeCheckbox.checked = this.mapData.explorationMode || false;
+        }
     }
 
     createMap() {
@@ -261,6 +268,187 @@ class MapSettings {
         alert(`Random map generated successfully with seed: ${seed}`);
     }
 
+    toggleExplorationMode() {
+        const explorationModeCheckbox = document.getElementById('exploration-mode');
+        this.mapData.explorationMode = explorationModeCheckbox.checked;
+        this.saveMapData();
+        
+        // Send message to main window if it exists (for live updates)
+        if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({
+                type: 'explorationModeChanged',
+                explorationMode: this.mapData.explorationMode
+            }, '*');
+        }
+        
+        alert(`Exploration mode ${this.mapData.explorationMode ? 'enabled' : 'disabled'}. Return to the main map to see changes.`);
+    }
+
+    rollStartingPoint() {
+        // Roll 2d12 (1-12 each)
+        const col = Math.floor(Math.random() * 12) + 1;
+        const row = Math.floor(Math.random() * 12) + 1;
+        
+        document.getElementById('starting-point-col').value = col;
+        document.getElementById('starting-point-row').value = row;
+        
+        alert(`Rolled: ${col}, ${row}`);
+    }
+
+    setStartingPoint() {
+        const col = parseInt(document.getElementById('starting-point-col').value);
+        const row = parseInt(document.getElementById('starting-point-row').value);
+        
+        if (col < 1 || col > 12 || row < 1 || row > 12) {
+            alert('Starting point must be between 1,1 and 12,12');
+            return;
+        }
+        
+        const activeMapName = this.mapData.activeMap;
+        if (!activeMapName || !this.mapData.maps[activeMapName]) {
+            alert('Please select an active map first.');
+            return;
+        }
+        
+        // Convert to 0-based coordinates for internal use
+        const hexKey = `${col - 1},${row - 1}`;
+        
+        // Create a temporary generator for the starting hex
+        const tempGenerator = new MapGenerator('starting-point-' + Date.now());
+        const biomes = ['Forest', 'Plains', 'Mountains', 'Hills', 'Swamp', 'Desert', 'Ocean', 'River'];
+        const randomBiome = biomes[Math.floor(Math.random() * biomes.length)];
+        
+        // Generate features for the starting biome
+        const featureChance = 0.5; // 50% chance for starting hex to have a feature
+        let feature = '';
+        if (Math.random() < featureChance && tempGenerator.features[randomBiome]) {
+            const biomeFeatures = tempGenerator.features[randomBiome];
+            feature = biomeFeatures[Math.floor(Math.random() * biomeFeatures.length)];
+        }
+        
+        // Initialize or update the starting hex
+        this.mapData.maps[activeMapName].hexes[hexKey] = {
+            biome: randomBiome,
+            feature: feature,
+            notes: '',
+            explored: true
+        };
+        
+        // Generate neighboring hexes
+        const neighborHexes = this.generateNeighboringHexes(col - 1, row - 1, randomBiome, tempGenerator);
+        
+        // Add neighboring hexes to the map
+        Object.keys(neighborHexes).forEach(nKey => {
+            if (!this.mapData.maps[activeMapName].hexes[nKey]) {
+                this.mapData.maps[activeMapName].hexes[nKey] = neighborHexes[nKey];
+            }
+        });
+        
+        // Save the starting point for reference
+        this.mapData.maps[activeMapName].startingPoint = { col: col - 1, row: row - 1 };
+        
+        this.saveMapData();
+        
+        // Send message to main window if it exists
+        if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({
+                type: 'startingPointSet',
+                hexKey: hexKey,
+                col: col - 1,
+                row: row - 1,
+                hexData: {
+                    biome: randomBiome,
+                    feature: feature,
+                    notes: '',
+                    explored: true
+                },
+                neighborHexes: neighborHexes
+            }, '*');
+        }
+        
+        alert(`Starting point set at ${col},${row} with ${randomBiome}${feature ? ` (${feature})` : ''} and marked as explored. Return to the main map to see changes.`);
+    }
+
+    generateNeighboringHexes(col, row, centerBiome, generator) {
+        const neighbors = this.getNeighborCoords(col, row);
+        const neighborHexes = {};
+        const biomes = ['Forest', 'Plains', 'Mountains', 'Hills', 'Swamp', 'Desert', 'Ocean', 'River'];
+        
+        neighbors.forEach(([nCol, nRow]) => {
+            // Check if neighbor is within grid bounds
+            if (nCol >= 0 && nCol < 12 && nRow >= 0 && nRow < 12) {
+                const nKey = `${nCol},${nRow}`;
+                
+                // Generate biome with 60% chance to cluster with center biome
+                let biome;
+                if (Math.random() < 0.6) {
+                    biome = centerBiome;
+                } else {
+                    biome = biomes[Math.floor(Math.random() * biomes.length)];
+                }
+                
+                // Generate features (50% chance)
+                let feature = '';
+                if (Math.random() < 0.5 && generator.features[biome]) {
+                    const biomeFeatures = generator.features[biome];
+                    feature = biomeFeatures[Math.floor(Math.random() * biomeFeatures.length)];
+                }
+                
+                neighborHexes[nKey] = {
+                    biome: biome,
+                    feature: feature,
+                    notes: '',
+                    explored: false
+                };
+            }
+        });
+        
+        return neighborHexes;
+    }
+
+    getNeighborCoords(col, row) {
+        const isEvenCol = col % 2 === 0;
+        const coords = [];
+        
+        // Return in same order as main.js: ['NW', 'N', 'NE', 'SW', 'S', 'SE']
+        
+        // NW (Northwest)
+        if (isEvenCol) {
+            coords.push([col - 1, row - 1]);
+        } else {
+            coords.push([col - 1, row]);
+        }
+        
+        // N (North)
+        coords.push([col, row - 1]);
+        
+        // NE (Northeast)
+        if (isEvenCol) {
+            coords.push([col + 1, row - 1]);
+        } else {
+            coords.push([col + 1, row]);
+        }
+        
+        // SW (Southwest)
+        if (isEvenCol) {
+            coords.push([col - 1, row]);
+        } else {
+            coords.push([col - 1, row + 1]);
+        }
+        
+        // S (South)
+        coords.push([col, row + 1]);
+        
+        // SE (Southeast)
+        if (isEvenCol) {
+            coords.push([col + 1, row]);
+        } else {
+            coords.push([col + 1, row + 1]);
+        }
+        
+        return coords;
+    }
+
     deleteAllData() {
         // Triple confirmation with detailed warnings
         const firstConfirm = confirm(
@@ -370,6 +558,11 @@ class MapSettings {
         document.getElementById('export-maps').addEventListener('click', () => this.exportMaps());
         document.getElementById('import-maps').addEventListener('click', () => this.importMaps());
         document.getElementById('import-file').addEventListener('change', (e) => this.handleFileImport(e));
+        
+        // Exploration mode event listeners
+        document.getElementById('exploration-mode').addEventListener('change', () => this.toggleExplorationMode());
+        document.getElementById('roll-starting-point').addEventListener('click', () => this.rollStartingPoint());
+        document.getElementById('set-starting-point').addEventListener('click', () => this.setStartingPoint());
         
         // Map generator event listeners
         document.getElementById('random-seed').addEventListener('click', () => this.generateRandomSeed());

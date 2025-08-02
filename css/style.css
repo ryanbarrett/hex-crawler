@@ -349,6 +349,36 @@ button.primary:hover {
     background: var(--ink-medium);
 }
 
+button.disabled, button:disabled {
+    background: var(--parchment-dark);
+    color: var(--ink-medium);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+button.disabled:hover, button:disabled:hover {
+    background: var(--parchment-dark);
+    color: var(--ink-medium);
+}
+
+/* Starting Point Controls */
+.starting-point-inputs {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.starting-point-inputs input[type="number"] {
+    width: 60px;
+    text-align: center;
+}
+
+.coordinate-separator {
+    font-weight: bold;
+    color: var(--ink-medium);
+}
+
 /* Danger Zone Styles */
 .danger-section {
     border-color: #c74545 !important;

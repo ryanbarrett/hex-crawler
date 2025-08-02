@@ -37,6 +37,33 @@
         </section>
 
         <section class="settings-section">
+            <h2>Exploration Mode</h2>
+            <div class="exploration-controls">
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="exploration-mode" style="margin-right: 0.5rem;">
+                        Enable Fog of War
+                    </label>
+                    <small>Hide unexplored hexes and only show explored hexes and their neighbors</small>
+                </div>
+                <div class="control-group">
+                    <label for="starting-point-col">Starting Point (2d12):</label>
+                    <div class="starting-point-inputs">
+                        <input type="number" id="starting-point-col" min="1" max="12" value="1">
+                        <span class="coordinate-separator">,</span>
+                        <input type="number" id="starting-point-row" min="1" max="12" value="1">
+                        <button type="button" id="roll-starting-point">Roll 2d12</button>
+                    </div>
+                    <small>Roll 2d12 to randomly determine starting coordinates (defaults to 1,1)</small>
+                </div>
+                <div class="control-group">
+                    <button id="set-starting-point" class="primary">Set Starting Point</button>
+                    <small>Marks the starting hex as explored with a random biome and centers exploration there</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section">
             <h2>Random Map Generator</h2>
             <div class="generator-controls">
                 <div class="control-group">

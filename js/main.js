@@ -1,3 +1,106 @@
+class HexExplorer {
+    constructor(seed) {
+        this.seed = seed || 'exploration';
+        this.random = this.createSeededRandom(this.seed);
+        
+        this.biomes = [
+            'Forest', 'Plains', 'Mountains', 'Hills', 'Swamp', 
+            'Desert', 'Ocean', 'River'
+        ];
+        
+        this.features = {
+            "Forest": [
+                'Ancient Grove', 'Logging Camp', 'Druid Circle', 'Hidden Shrine', 'Bandit Camp', 'Hunter\'s Lodge',
+                'Ent Burial Site', 'Forgotten Ranger Post', 'Mushroom Ring', 'Wild Orchard', 'Fairy Circle',
+                'Abandoned Cabin', 'Elf Encampment', 'Forest Beacon', 'Thorn Thicket', 'Animal Den', 'Overgrown Path'
+            ],
+            "Plains": [
+                'Village', 'Trading Post', 'Windmill', 'Stone Circle', 'Battlefield', 'Crossroads Inn',
+                'Grain Silo', 'Horse Ranch', 'Ranger\'s Camp', 'Ruined Watchpost', 'Fallow Field',
+                'Wandering Caravan', 'Hilltop Altar', 'Nomad Stones', 'Weathered Statue', 'Open-Air Market'
+            ],
+            "Mountains": [
+                'Mine', 'Dwarven Outpost', 'Cave System', 'Observatory', 'Dragon Lair', 'Ancient Fortress',
+                'Avalanche Path', 'Goat Trail', 'Glacier Crack', 'Monastery in the Peaks', 'Collapsed Tunnel',
+                'Meteor Crater', 'Hermit\'s Peak', 'Frozen Waterfall', 'Crystal Cavern', 'Abandoned Lift'
+            ],
+            "Hills": [
+                'Watchtower', 'Shepherd\'s Hut', 'Burial Mound', 'Old Ruins', 'Hillside Village', 'Stone Quarry',
+                'Smuggler\'s Tunnel', 'Rolling Cairns', 'Wind-Cut Pass', 'Hilltop Shrine', 'Scout Post',
+                'Overgrown Barrows', 'Thistle Patch', 'Crumbling Mill', 'Stone Circles', 'Bandit Lookout'
+            ],
+            "Swamp": [
+                'Witch\'s Hut', 'Alchemist Garden', 'Sunken Temple', 'Will O\' Wisp Grove', 'Bog Iron Mine',
+                'Floating Dock', 'Leech Pond', 'Sunken Library', 'Ghoul Tree', 'Fungal Bog',
+                'Croaking Circle', 'Rotting Cabin', 'Reed Maze', 'Alligator Nest', 'Fog Totem'
+            ],
+            "Desert": [
+                'Oasis', 'Nomad Camp', 'Buried Ruins', 'Salt Mine', 'Mirage Pool', 'Sandstone Cliffs',
+                'Camel Graveyard', 'Wind-Cut Canyon', 'Scorpion Nest', 'Crumbling Watchtower',
+                'Sand Trap Dunes', 'Starfall Crater', 'Glass Field', 'Ancient Aquifer', 'Whispering Monolith'
+            ],
+            "Ocean": [
+                'Shipwreck', 'Coral Reef', 'Sea Cave', 'Lighthouse', 'Fishing Village', 'Hidden Cove',
+                'Kelp Forest', 'Siren Rocks', 'Whale Bones', 'Sunken Observatory', 'Smuggler\'s Shipwreck',
+                'Pearl Diver\'s Dock', 'Tide Pool Maze', 'Shimmering Whirlpool', 'Crab Shell Isles'
+            ],
+            "River": [
+                'Bridge', 'Ferry Crossing', 'Watermill', 'Fishing Spot', 'River Port', 'Sacred Spring',
+                'Log Raft Camp', 'Flooded Shrine', 'Rapids Watch', 'Eel Trap Weir', 'River Troll Nest',
+                'Old Dam Ruins', 'Mist Dock', 'Whispering Brook', 'Floating Market', 'Fishbone Weir'
+            ]
+        };
+    }
+    
+    createSeededRandom(seed) {
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            const char = seed.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        
+        return () => {
+            hash = ((hash * 1103515245) + 12345) & 0x7fffffff;
+            return hash / 0x7fffffff;
+        };
+    }
+    
+    generateHex(hexKey, neighboringBiomes = [], featureDensity = 'normal') {
+        // Bias toward neighboring biomes for clustering
+        let biome;
+        if (neighboringBiomes.length > 0 && this.random() < 0.6) {
+            biome = neighboringBiomes[Math.floor(this.random() * neighboringBiomes.length)];
+        } else {
+            biome = this.biomes[Math.floor(this.random() * this.biomes.length)];
+        }
+        
+        // Generate features based on density
+        let features = [];
+        const featureChance = featureDensity === 'sparse' ? 0.25 : 
+                            featureDensity === 'normal' ? 0.5 : 0.75;
+        
+        if (this.random() < featureChance) {
+            const biomeFeatures = this.features[biome];
+            if (biomeFeatures && biomeFeatures.length > 0) {
+                features.push(biomeFeatures[Math.floor(this.random() * biomeFeatures.length)]);
+                
+                // 25% chance for a second feature if dense
+                if (featureDensity === 'dense' && this.random() < 0.25) {
+                    features.push(biomeFeatures[Math.floor(this.random() * biomeFeatures.length)]);
+                }
+            }
+        }
+        
+        return {
+            biome: biome,
+            feature: features.join(', '),
+            notes: '',
+            explored: false
+        };
+    }
+}
+
 class HexMap {
     constructor() {
         this.hexSize = 37;
@@ -5,6 +108,8 @@ class HexMap {
         this.svg = document.getElementById('hex-grid');
         this.currentHex = null;
         this.selectedHexElement = null;
+        this.explorer = new HexExplorer('exploration-seed');
+        this.explorationMode = false;
         
         // Biome icon mapping
         this.biomeIcons = {
@@ -21,6 +126,7 @@ class HexMap {
         this.initializeMap();
         this.setupEventListeners();
         this.loadMapData();
+        this.setupMessageListener();
     }
 
     initializeMap() {
@@ -73,7 +179,8 @@ class HexMap {
             this.hexes.set(hexKey, {
                 biome: 'Unexplored',
                 feature: '',
-                notes: ''
+                notes: '',
+                explored: false
             });
         }
         
@@ -135,7 +242,7 @@ class HexMap {
     }
     
     updateInfoPanel(hexKey) {
-        const hexData = this.hexes.get(hexKey) || { biome: 'Unexplored', feature: '', notes: '' };
+        const hexData = this.hexes.get(hexKey) || { biome: 'Unexplored', feature: '', notes: '', explored: false };
         
         // Show hex details
         document.getElementById('selected-hex-info').style.display = 'none';
@@ -146,6 +253,22 @@ class HexMap {
         document.getElementById('hex-biome').value = hexData.biome;
         document.getElementById('hex-feature').value = hexData.feature || '';
         document.getElementById('hex-notes').value = hexData.notes || '';
+        
+        // Update explore button state
+        const exploreButton = document.getElementById('explore-hex');
+        const explorationStatus = document.getElementById('exploration-status');
+        
+        if (hexData.explored) {
+            exploreButton.textContent = 'Explored';
+            exploreButton.disabled = true;
+            exploreButton.classList.add('disabled');
+            explorationStatus.textContent = 'This hex has been explored';
+        } else {
+            exploreButton.textContent = 'Explore!';
+            exploreButton.disabled = false;
+            exploreButton.classList.remove('disabled');
+            explorationStatus.textContent = 'Click to explore this hex and reveal its neighbors';
+        }
     }
 
     updateNeighborsDisplay(hexKey) {
@@ -180,7 +303,15 @@ class HexMap {
                         this.selectHex(neighborKey, neighborElement);
                     }
                 });
+            } else if (neighborKey === null) {
+                // Out of bounds neighbor
+                neighborDiv.className = 'neighbor-hex empty';
+                neighborDiv.innerHTML = `
+                    <div class="neighbor-direction">${direction}</div>
+                    <div class="neighbor-biome">Edge</div>
+                `;
             } else {
+                // Valid hex but unexplored
                 neighborDiv.className = 'neighbor-hex empty';
                 neighborDiv.innerHTML = `
                     <div class="neighbor-direction">${direction}</div>
@@ -206,44 +337,163 @@ class HexMap {
     getNeighbors(col, row) {
         const isEvenCol = col % 2 === 0;
         const neighbors = [];
+        const GRID_COLS = 12;
+        const GRID_ROWS = 12;
         
         // Return in order: ['NW', 'N', 'NE', 'SW', 'S', 'SE']
         
         // NW (Northwest)
+        let nwCol, nwRow;
         if (isEvenCol) {
-            neighbors.push(`${col - 1},${row - 1}`);
+            nwCol = col - 1;
+            nwRow = row - 1;
         } else {
-            neighbors.push(`${col - 1},${row}`);
+            nwCol = col - 1;
+            nwRow = row;
+        }
+        if (nwCol >= 0 && nwCol < GRID_COLS && nwRow >= 0 && nwRow < GRID_ROWS) {
+            neighbors.push(`${nwCol},${nwRow}`);
+        } else {
+            neighbors.push(null);
         }
         
         // N (North)
-        neighbors.push(`${col},${row - 1}`);
+        if (row - 1 >= 0) {
+            neighbors.push(`${col},${row - 1}`);
+        } else {
+            neighbors.push(null);
+        }
         
         // NE (Northeast)
+        let neCol, neRow;
         if (isEvenCol) {
-            neighbors.push(`${col + 1},${row - 1}`);
+            neCol = col + 1;
+            neRow = row - 1;
         } else {
-            neighbors.push(`${col + 1},${row}`);
+            neCol = col + 1;
+            neRow = row;
+        }
+        if (neCol >= 0 && neCol < GRID_COLS && neRow >= 0 && neRow < GRID_ROWS) {
+            neighbors.push(`${neCol},${neRow}`);
+        } else {
+            neighbors.push(null);
         }
         
         // SW (Southwest)
+        let swCol, swRow;
         if (isEvenCol) {
-            neighbors.push(`${col - 1},${row}`);
+            swCol = col - 1;
+            swRow = row;
         } else {
-            neighbors.push(`${col - 1},${row + 1}`);
+            swCol = col - 1;
+            swRow = row + 1;
+        }
+        if (swCol >= 0 && swCol < GRID_COLS && swRow >= 0 && swRow < GRID_ROWS) {
+            neighbors.push(`${swCol},${swRow}`);
+        } else {
+            neighbors.push(null);
         }
         
         // S (South)
-        neighbors.push(`${col},${row + 1}`);
+        if (row + 1 < GRID_ROWS) {
+            neighbors.push(`${col},${row + 1}`);
+        } else {
+            neighbors.push(null);
+        }
         
         // SE (Southeast)
+        let seCol, seRow;
         if (isEvenCol) {
-            neighbors.push(`${col + 1},${row}`);
+            seCol = col + 1;
+            seRow = row;
         } else {
-            neighbors.push(`${col + 1},${row + 1}`);
+            seCol = col + 1;
+            seRow = row + 1;
+        }
+        if (seCol >= 0 && seCol < GRID_COLS && seRow >= 0 && seRow < GRID_ROWS) {
+            neighbors.push(`${seCol},${seRow}`);
+        } else {
+            neighbors.push(null);
         }
         
         return neighbors;
+    }
+
+    expandNeighbors(hexKey) {
+        const [col, row] = hexKey.split(',').map(Number);
+        const neighbors = this.getNeighbors(col, row);
+        const currentHexData = this.hexes.get(hexKey);
+        
+        // Filter out null neighbors (out of bounds) and get neighboring biomes for clustering
+        const validNeighbors = neighbors.filter(nKey => nKey !== null);
+        const neighboringBiomes = validNeighbors
+            .filter(nKey => this.hexes.has(nKey))
+            .map(nKey => this.hexes.get(nKey).biome)
+            .filter(biome => biome !== 'Unexplored');
+        
+        // Get feature density from settings (default to normal)
+        const featureDensity = 'normal'; // TODO: Get from user settings
+        
+        let newHexesGenerated = false;
+        
+        validNeighbors.forEach(neighborKey => {
+            // Only generate if hex doesn't exist or is unexplored
+            if (!this.hexes.has(neighborKey) || this.hexes.get(neighborKey).biome === 'Unexplored') {
+                const newHexData = this.explorer.generateHex(neighborKey, neighboringBiomes, featureDensity);
+                this.hexes.set(neighborKey, newHexData);
+                newHexesGenerated = true;
+                
+                // Update display for newly generated hex
+                this.refreshHexDisplay(neighborKey);
+            }
+        });
+        
+        if (newHexesGenerated) {
+            this.saveToLocalStorage();
+            this.updateNeighborsDisplay(hexKey);
+        }
+    }
+
+    exploreHex() {
+        if (!this.currentHex) return;
+        
+        const currentData = this.hexes.get(this.currentHex);
+        if (currentData && currentData.explored) return; // Already explored
+        
+        // Mark hex as explored
+        const biome = document.getElementById('hex-biome').value;
+        const feature = document.getElementById('hex-feature').value;
+        const notes = document.getElementById('hex-notes').value;
+        
+        const hexData = {
+            biome: biome,
+            feature: feature,
+            notes: notes,
+            explored: true
+        };
+        
+        this.hexes.set(this.currentHex, hexData);
+        this.saveToLocalStorage();
+        
+        // Expand neighbors since hex was just explored
+        this.expandNeighbors(this.currentHex);
+        
+        // Update the explore button state
+        this.updateInfoPanel(this.currentHex);
+        
+        // Update the main hex display with new biome icon
+        this.refreshHexDisplay(this.currentHex);
+        
+        // Update neighbors display to reflect changes
+        this.updateNeighborsDisplay(this.currentHex);
+        
+        // Update any neighbor displays that might show this hex
+        this.refreshNeighborDisplays();
+        
+        // Update hex visibility if exploration mode is enabled
+        if (this.explorationMode) {
+            this.updateHexVisibility();
+        }
     }
 
     saveHexData() {
@@ -253,10 +503,15 @@ class HexMap {
         const feature = document.getElementById('hex-feature').value;
         const notes = document.getElementById('hex-notes').value;
         
+        // Preserve exploration status
+        const currentData = this.hexes.get(this.currentHex);
+        const explored = currentData ? currentData.explored : false;
+        
         const hexData = {
             biome: biome,
             feature: feature,
-            notes: notes
+            notes: notes,
+            explored: explored
         };
         
         this.hexes.set(this.currentHex, hexData);
@@ -301,6 +556,9 @@ class HexMap {
         const saveBtn = document.getElementById('save-hex');
         saveBtn.addEventListener('click', () => this.saveHexData());
         
+        const exploreBtn = document.getElementById('explore-hex');
+        exploreBtn.addEventListener('click', () => this.exploreHex());
+        
         // Auto-save on field changes
         const biomeSelect = document.getElementById('hex-biome');
         const featureInput = document.getElementById('hex-feature');
@@ -334,7 +592,8 @@ class HexMap {
                     hexes: Object.fromEntries(this.hexes)
                 }
             },
-            activeMap: 'Default Map'
+            activeMap: 'Default Map',
+            explorationMode: this.explorationMode
         };
         
         localStorage.setItem('hexMapData', JSON.stringify(mapData));
@@ -345,9 +604,21 @@ class HexMap {
         if (saved) {
             try {
                 const data = JSON.parse(saved);
+                
+                // Load exploration mode setting
+                this.explorationMode = data.explorationMode || false;
+                
                 const activeMap = data.maps[data.activeMap];
                 if (activeMap && activeMap.hexes) {
-                    this.hexes = new Map(Object.entries(activeMap.hexes));
+                    // Load hexes and ensure backwards compatibility
+                    const hexEntries = Object.entries(activeMap.hexes).map(([key, value]) => {
+                        // Add explored field if missing (backwards compatibility)
+                        if (value.explored === undefined) {
+                            value.explored = false;
+                        }
+                        return [key, value];
+                    });
+                    this.hexes = new Map(hexEntries);
                     // Refresh all hex displays to show loaded icons
                     this.refreshAllHexDisplays();
                 }
@@ -362,6 +633,113 @@ class HexMap {
         this.hexes.forEach((hexData, hexKey) => {
             if (hexData.biome && hexData.biome !== 'Unexplored') {
                 this.refreshHexDisplay(hexKey);
+            }
+        });
+        
+        // Update visibility if exploration mode is enabled
+        if (this.explorationMode) {
+            this.updateHexVisibility();
+        }
+    }
+    
+    setupMessageListener() {
+        // Listen for messages from settings window about exploration mode changes
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'explorationModeChanged') {
+                this.explorationMode = event.data.explorationMode;
+                this.updateHexVisibility();
+            } else if (event.data.type === 'startingPointSet') {
+                this.handleStartingPointSet(event.data);
+            }
+        });
+    }
+
+    handleStartingPointSet(data) {
+        const hexKey = data.hexKey;
+        
+        // Update the hex data with the generated biome and mark as explored
+        this.hexes.set(hexKey, data.hexData);
+        
+        // Add neighboring hexes data
+        if (data.neighborHexes) {
+            Object.keys(data.neighborHexes).forEach(nKey => {
+                if (!this.hexes.has(nKey)) {
+                    this.hexes.set(nKey, data.neighborHexes[nKey]);
+                }
+            });
+        }
+        
+        // Save the updated data
+        this.saveToLocalStorage();
+        
+        // Refresh displays for all generated hexes
+        this.refreshHexDisplay(hexKey);
+        if (data.neighborHexes) {
+            Object.keys(data.neighborHexes).forEach(nKey => {
+                this.refreshHexDisplay(nKey);
+            });
+        }
+        
+        // Select the starting hex and center view on it
+        const hexElement = document.querySelector(`[data-hex="${hexKey}"]`);
+        if (hexElement) {
+            this.selectHex(hexKey, hexElement);
+            
+            // Scroll the hex into view (center it if possible)
+            hexElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center', 
+                inline: 'center' 
+            });
+        }
+        
+        // Update visibility if exploration mode is enabled
+        if (this.explorationMode) {
+            this.updateHexVisibility();
+        }
+    }
+    
+    getVisibleHexes() {
+        if (!this.explorationMode) {
+            // If exploration mode is off, all hexes are visible
+            return new Set(Array.from(this.hexes.keys()));
+        }
+        
+        const visibleHexes = new Set();
+        
+        // Add all explored hexes and their neighbors
+        this.hexes.forEach((hexData, hexKey) => {
+            if (hexData.explored) {
+                visibleHexes.add(hexKey);
+                
+                // Add all neighbors of explored hexes
+                const [col, row] = hexKey.split(',').map(Number);
+                const neighbors = this.getNeighbors(col, row);
+                neighbors.forEach(neighborKey => {
+                    if (neighborKey !== null) {
+                        visibleHexes.add(neighborKey);
+                    }
+                });
+            }
+        });
+        
+        return visibleHexes;
+    }
+    
+    updateHexVisibility() {
+        const visibleHexes = this.getVisibleHexes();
+        
+        // Update all hex elements' visibility
+        const hexElements = document.querySelectorAll('[data-hex]');
+        hexElements.forEach(hexElement => {
+            const hexKey = hexElement.getAttribute('data-hex');
+            const hexGroup = hexElement.parentNode;
+            
+            if (visibleHexes.has(hexKey)) {
+                hexGroup.style.display = '';
+                hexGroup.style.opacity = '1';
+            } else {
+                hexGroup.style.display = 'none';
             }
         });
     }
