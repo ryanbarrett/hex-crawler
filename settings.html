@@ -37,6 +37,46 @@
         </section>
 
         <section class="settings-section">
+            <h2>Random Map Generator</h2>
+            <div class="generator-controls">
+                <div class="control-group">
+                    <label for="map-seed">Map Seed:</label>
+                    <input type="text" id="map-seed" placeholder="Enter seed (optional)">
+                    <button id="random-seed">Random</button>
+                </div>
+                <div class="control-group">
+                    <label for="terrain-density">Terrain Variety:</label>
+                    <select id="terrain-density">
+                        <option value="low">Low (Large biome clusters)</option>
+                        <option value="medium" selected>Medium (Balanced)</option>
+                        <option value="high">High (Diverse terrain)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="feature-density">Feature Density:</label>
+                    <select id="feature-density">
+                        <option value="sparse">Sparse (Few features)</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="dense">Dense (Many features)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="water-amount">Water Coverage:</label>
+                    <select id="water-amount">
+                        <option value="minimal">Minimal</option>
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <button id="generate-map" class="primary">Generate New Map</button>
+                    <small>This will replace all hexes in the current map</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section">
             <h2>Import/Export</h2>
             <div class="import-export-controls">
                 <div class="control-group">
@@ -47,6 +87,16 @@
                     <input type="file" id="import-file" accept=".json" style="display: none;">
                     <button id="import-maps">Import Maps</button>
                     <small>Upload JSON file to import maps</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section danger-section">
+            <h2>⚠️ Danger Zone</h2>
+            <div class="danger-controls">
+                <div class="control-group">
+                    <button id="delete-all-data" class="danger">Delete All Data</button>
+                    <small>⚠️ This will permanently delete ALL maps and data. A backup will be downloaded first.</small>
                 </div>
             </div>
         </section>

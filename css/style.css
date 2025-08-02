@@ -128,6 +128,12 @@ main {
     text-anchor: middle;
     fill: var(--ink-dark);
     pointer-events: none;
+    display: none;
+}
+
+.hex-icon {
+    filter: sepia(10%) saturate(90%) hue-rotate(10deg);
+    opacity: 0.95;
 }
 
 /* Info Panel Styles */
@@ -213,20 +219,48 @@ main {
 .neighbors-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    max-width: 300px;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.1rem;
+    max-width: 240px;
     margin: 0 auto;
+    align-items: center;
+    justify-items: center;
+}
+
+/* Position hexes in proper spatial arrangement using IDs */
+#neighbor-NW { grid-area: 1 / 1 / 2 / 2; transform: translate(30px, 30px); }
+#neighbor-N  { grid-area: 1 / 2 / 2 / 3; transform: translate(0px, 0px); }
+#neighbor-NE { grid-area: 1 / 3 / 2 / 4; transform: translate(-30px, 30px); }
+#neighbor-SW { grid-area: 3 / 1 / 4 / 2; transform: translate(30px, -30px); }
+#neighbor-S  { grid-area: 3 / 2 / 4 / 3; transform: translate(0px, 0px); }
+#neighbor-SE { grid-area: 3 / 3 / 4 / 4; transform: translate(-30px, -30px); }
+#neighbor-CENTER { grid-area: 2 / 2 / 3 / 3; }
+
+.neighbor-hex.current {
+    background: var(--accent-gold);
+    border-color: var(--ink-dark);
+    border-width: 3px;
+    cursor: default;
+}
+
+.neighbor-hex.current:hover {
+    background: var(--accent-gold);
+    transform: none;
 }
 
 .neighbor-hex {
+    width: 60px;
+    height: 52px;
     background: var(--parchment-bg);
-    border: 1px solid var(--border-brown);
-    border-radius: 4px;
-    padding: 0.5rem;
-    text-align: center;
-    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.65rem;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    margin: 2px;
 }
 
 .neighbor-hex:hover {
@@ -248,20 +282,36 @@ main {
 .neighbor-direction {
     font-weight: 600;
     color: var(--ink-medium);
-    font-size: 0.7rem;
-    margin-bottom: 0.25rem;
+    font-size: 0.6rem;
+    margin-bottom: 0.1rem;
+    line-height: 1;
 }
 
 .neighbor-biome {
     font-weight: 600;
     color: var(--ink-dark);
+    font-size: 0.65rem;
+    line-height: 1;
+    text-align: center;
 }
 
 .neighbor-feature {
     color: var(--ink-medium);
     font-style: italic;
-    font-size: 0.7rem;
+    font-size: 0.5rem;
+    line-height: 0.9;
+    text-align: center;
+    margin-top: 0.05rem;
 }
+
+.neighbor-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin: 2px 0;
+    filter: sepia(20%) saturate(80%);
+}
+
 
 button {
     padding: 0.5rem 1rem;
@@ -287,6 +337,41 @@ button.danger {
 
 button.danger:hover {
     background: #a03030;
+}
+
+button.primary {
+    background: var(--ink-dark);
+    color: var(--parchment-bg);
+    font-weight: 700;
+}
+
+button.primary:hover {
+    background: var(--ink-medium);
+}
+
+/* Danger Zone Styles */
+.danger-section {
+    border-color: #c74545 !important;
+    background: rgba(199, 69, 69, 0.05) !important;
+}
+
+.danger-section h2 {
+    color: #c74545;
+    text-align: center;
+}
+
+.danger-controls {
+    text-align: center;
+}
+
+.danger-controls .control-group {
+    justify-content: center;
+}
+
+.danger-controls small {
+    color: #c74545;
+    font-weight: 600;
+    text-align: center;
 }
 
 /* Settings Page Styles */

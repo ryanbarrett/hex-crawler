@@ -6,6 +6,18 @@ class HexMap {
         this.currentHex = null;
         this.selectedHexElement = null;
         
+        // Biome icon mapping
+        this.biomeIcons = {
+            'Forest': 'assets/icons/forest.png',
+            'Plains': 'assets/icons/plains.png',
+            'Mountains': 'assets/icons/mountains.png',
+            'Hills': 'assets/icons/hills.png',
+            'Swamp': 'assets/icons/swamp.png',
+            'Desert': 'assets/icons/desert.png',
+            'Ocean': 'assets/icons/ocean.png',
+            'River': 'assets/icons/river.png'
+        };
+        
         this.initializeMap();
         this.setupEventListeners();
         this.loadMapData();
@@ -46,7 +58,7 @@ class HexMap {
         
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         text.setAttribute('x', x);
-        text.setAttribute('y', y + 5);
+        text.setAttribute('y', y + 25);
         text.setAttribute('class', 'hex-text');
         text.textContent = hexKey;
         
@@ -63,6 +75,35 @@ class HexMap {
                 feature: '',
                 notes: ''
             });
+        }
+        
+        // Update hex display with biome icon if available
+        this.updateHexDisplay(hexGroup, hexKey, x, y);
+    }
+    
+    updateHexDisplay(hexGroup, hexKey, x, y) {
+        const hexData = this.hexes.get(hexKey);
+        if (!hexData || hexData.biome === 'Unexplored') return;
+        
+        const iconPath = this.biomeIcons[hexData.biome];
+        if (iconPath) {
+            // Remove existing icon if any
+            const existingIcon = hexGroup.querySelector('.hex-icon');
+            if (existingIcon) {
+                hexGroup.removeChild(existingIcon);
+            }
+            
+            // Add biome icon
+            const icon = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            icon.setAttribute('x', x - 15);
+            icon.setAttribute('y', y - 15);
+            icon.setAttribute('width', 30);
+            icon.setAttribute('height', 30);
+            icon.setAttribute('href', iconPath);
+            icon.setAttribute('class', 'hex-icon');
+            icon.style.pointerEvents = 'none';
+            
+            hexGroup.appendChild(icon);
         }
     }
 
@@ -112,14 +153,14 @@ class HexMap {
         const neighbors = this.getNeighbors(col, row);
         const neighborsGrid = document.getElementById('neighbors-grid');
         const directions = ['NW', 'N', 'NE', 'SW', 'S', 'SE'];
-        const gridPositions = [0, 1, 2, 3, 5, 4]; // Grid layout positions
         
         neighborsGrid.innerHTML = '';
         
-        // Create 6 neighbor slots
+        // Create 6 neighbor hexes + 1 center hex (7 total)
         for (let i = 0; i < 6; i++) {
             const neighborDiv = document.createElement('div');
             neighborDiv.className = 'neighbor-hex';
+            neighborDiv.id = `neighbor-${directions[i]}`; // Add unique ID
             
             const neighborKey = neighbors[i];
             const direction = directions[i];
@@ -149,26 +190,57 @@ class HexMap {
             
             neighborsGrid.appendChild(neighborDiv);
         }
+        
+        // Add center hex showing current coordinates
+        const centerDiv = document.createElement('div');
+        centerDiv.className = 'neighbor-hex current';
+        centerDiv.id = 'neighbor-CENTER'; // Add unique ID for center
+        centerDiv.innerHTML = `
+            <div class="neighbor-direction">HERE</div>
+            <div class="neighbor-biome">${hexKey}</div>
+        `;
+        
+        neighborsGrid.appendChild(centerDiv);
     }
 
     getNeighbors(col, row) {
         const isEvenCol = col % 2 === 0;
         const neighbors = [];
         
+        // Return in order: ['NW', 'N', 'NE', 'SW', 'S', 'SE']
+        
+        // NW (Northwest)
         if (isEvenCol) {
-            neighbors.push(`${col},${row - 1}`);     // north
-            neighbors.push(`${col + 1},${row - 1}`); // northeast
-            neighbors.push(`${col + 1},${row}`);     // southeast
-            neighbors.push(`${col},${row + 1}`);     // south
-            neighbors.push(`${col - 1},${row}`);     // southwest
-            neighbors.push(`${col - 1},${row - 1}`); // northwest
+            neighbors.push(`${col - 1},${row - 1}`);
         } else {
-            neighbors.push(`${col},${row - 1}`);     // north
-            neighbors.push(`${col + 1},${row}`);     // northeast
-            neighbors.push(`${col + 1},${row + 1}`); // southeast
-            neighbors.push(`${col},${row + 1}`);     // south
-            neighbors.push(`${col - 1},${row + 1}`); // southwest
-            neighbors.push(`${col - 1},${row}`);     // northwest
+            neighbors.push(`${col - 1},${row}`);
+        }
+        
+        // N (North)
+        neighbors.push(`${col},${row - 1}`);
+        
+        // NE (Northeast)
+        if (isEvenCol) {
+            neighbors.push(`${col + 1},${row - 1}`);
+        } else {
+            neighbors.push(`${col + 1},${row}`);
+        }
+        
+        // SW (Southwest)
+        if (isEvenCol) {
+            neighbors.push(`${col - 1},${row}`);
+        } else {
+            neighbors.push(`${col - 1},${row + 1}`);
+        }
+        
+        // S (South)
+        neighbors.push(`${col},${row + 1}`);
+        
+        // SE (Southeast)
+        if (isEvenCol) {
+            neighbors.push(`${col + 1},${row}`);
+        } else {
+            neighbors.push(`${col + 1},${row + 1}`);
         }
         
         return neighbors;
@@ -190,11 +262,32 @@ class HexMap {
         this.hexes.set(this.currentHex, hexData);
         this.saveToLocalStorage();
         
+        // Update the main hex display with new biome icon
+        this.refreshHexDisplay(this.currentHex);
+        
         // Update neighbors display to reflect changes
         this.updateNeighborsDisplay(this.currentHex);
         
         // Update any neighbor displays that might show this hex
         this.refreshNeighborDisplays();
+    }
+    
+    refreshHexDisplay(hexKey) {
+        const hexElement = document.querySelector(`[data-hex="${hexKey}"]`);
+        if (hexElement) {
+            const hexGroup = hexElement.parentNode;
+            const rect = hexElement.getBoundingClientRect();
+            const svgRect = this.svg.getBoundingClientRect();
+            
+            // Get hex position from the hex group transform or calculate from grid
+            const [col, row] = hexKey.split(',').map(Number);
+            const hexHeight = this.hexSize * Math.sqrt(3);
+            const hexWidth = this.hexSize * 2;
+            const x = col * (hexWidth * 0.75) + 60;
+            const y = row * hexHeight + (col % 2 === 1 ? hexHeight / 2 : 0) + 60;
+            
+            this.updateHexDisplay(hexGroup, hexKey, x, y);
+        }
     }
     
     refreshNeighborDisplays() {
@@ -255,11 +348,22 @@ class HexMap {
                 const activeMap = data.maps[data.activeMap];
                 if (activeMap && activeMap.hexes) {
                     this.hexes = new Map(Object.entries(activeMap.hexes));
+                    // Refresh all hex displays to show loaded icons
+                    this.refreshAllHexDisplays();
                 }
             } catch (e) {
                 console.warn('Failed to load saved map data:', e);
             }
         }
+    }
+    
+    refreshAllHexDisplays() {
+        // Update all hexes to show their biome icons
+        this.hexes.forEach((hexData, hexKey) => {
+            if (hexData.biome && hexData.biome !== 'Unexplored') {
+                this.refreshHexDisplay(hexKey);
+            }
+        });
     }
 }
 
