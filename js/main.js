@@ -565,6 +565,29 @@ class HexMap {
         const fogToggleBtn = document.getElementById('fog-of-war-toggle');
         fogToggleBtn.addEventListener('click', () => this.toggleFogOfWar());
         
+        const helpBtn = document.getElementById('help-button');
+        helpBtn.addEventListener('click', () => this.showHelp());
+        
+        const helpCloseBtn = document.getElementById('help-close');
+        helpCloseBtn.addEventListener('click', () => this.hideHelp());
+        
+        const helpModal = document.getElementById('help-modal');
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                this.hideHelp();
+            }
+        });
+        
+        // Close help modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const helpModal = document.getElementById('help-modal');
+                if (helpModal.style.display === 'flex') {
+                    this.hideHelp();
+                }
+            }
+        });
+        
         // Auto-save on field changes
         const biomeSelect = document.getElementById('hex-biome');
         const featureInput = document.getElementById('hex-feature');
@@ -662,6 +685,18 @@ class HexMap {
         } else {
             promptDiv.style.display = 'none';
         }
+    }
+
+    showHelp() {
+        const helpModal = document.getElementById('help-modal');
+        helpModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    hideHelp() {
+        const helpModal = document.getElementById('help-modal');
+        helpModal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
     }
 
     refreshAllHexDisplays() {
