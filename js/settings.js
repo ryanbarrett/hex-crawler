@@ -391,14 +391,113 @@ class MapGenerator {
         ];
         
         this.features = {
-            Forest: ['Ancient Grove', 'Logging Camp', 'Druid Circle', 'Hidden Shrine', 'Bandit Camp', 'Hunter\'s Lodge'],
-            Plains: ['Village', 'Trading Post', 'Windmill', 'Stone Circle', 'Battlefield', 'Crossroads Inn'],
-            Mountains: ['Mine', 'Dwarven Outpost', 'Cave System', 'Observatory', 'Dragon Lair', 'Ancient Fortress'],
-            Hills: ['Watchtower', 'Shepherd\'s Hut', 'Burial Mound', 'Old Ruins', 'Hillside Village', 'Stone Quarry'],
-            Swamp: ['Witch\'s Hut', 'Alchemist Garden', 'Sunken Temple', 'Will O\' Wisp Grove', 'Bog Iron Mine'],
-            Desert: ['Oasis', 'Nomad Camp', 'Buried Ruins', 'Salt Mine', 'Mirage Pool', 'Sandstone Cliffs'],
-            Ocean: ['Shipwreck', 'Coral Reef', 'Sea Cave', 'Lighthouse', 'Fishing Village', 'Hidden Cove'],
-            River: ['Bridge', 'Ferry Crossing', 'Watermill', 'Fishing Spot', 'River Port', 'Sacred Spring']
+            "Forest": [
+                'Ancient Grove', 'Logging Camp', 'Druid Circle', 'Hidden Shrine', 'Bandit Camp', 'Hunter\'s Lodge',
+                'Ent Burial Site', 'Forgotten Ranger Post', 'Mushroom Ring', 'Wild Orchard', 'Fairy Circle',
+                'Abandoned Cabin', 'Elf Encampment', 'Forest Beacon', 'Thorn Thicket', 'Animal Den', 'Overgrown Path',
+                'Singing Stones', 'Moonlit Glade', 'Treefolk Settlement', 'Witch Circle', 'Squirrelfolk Village',
+                'Canopy Watchpost', 'Hollow Tree Refuge', 'Ranger\'s Trapline', 'Spirit Grove', 'Misty Clearing',
+                'Hidden Pool', 'Woodland Grave', 'Treehouse Lookout', 'Dryad’s Hollow', 'Forest Maze', 'Secret Garden',
+                'Camouflaged Tent', 'Root-Cursed Ring', 'Crashed Skycraft', 'Beast Pit', 'Elven Waystone',
+                'Hanging Moss Bridge', 'Bloodthistle Patch', 'Druidic Arch', 'Logging Rails', 'Night Bloom Hollow',
+                'Chittering Hollow', 'Briar Gate', 'Vine-Strangled Statue', 'Ancient War Camp', 'Woodland Sanctuary',
+                'Direwolf Den', 'Fungus Grotto'
+            ],
+            "Plains": [
+                'Village', 'Trading Post', 'Windmill', 'Stone Circle', 'Battlefield', 'Crossroads Inn',
+                'Grain Silo', 'Horse Ranch', 'Ranger’s Camp', 'Ruined Watchpost', 'Fallow Field',
+                'Wandering Caravan', 'Hilltop Altar', 'Nomad Stones', 'Weathered Statue', 'Open-Air Market',
+                'Sunken Barrow', 'Traveling Circus', 'Abandoned Tent', 'Militia Training Grounds',
+                'Field of Bones', 'Plains Stonehenge', 'Hay Bale Maze', 'Plague Marker', 'Giant Badger Burrow',
+                'Messenger’s Crossroads', 'Comet Impact Crater', 'Shepherd Encampment', 'Rolling Boulders',
+                'Lone Oak Tree', 'Tilled Patch', 'Sacrificial Stones', 'Bannered Hill', 'Trampled Battleground',
+                'Fey Circle', 'Weather Station', 'Scarecrow Sentinel', 'Buffalo Wallows', 'Hilltop Cairn',
+                'Dust Devil Path', 'Corn Effigy', 'Migrant Nest', 'Wagoneer’s Stop', 'Wind Shrine',
+                'Buried Time Capsule', 'Flower Field', 'Shimmering Mirage', 'Old Farmstead', 'Ghost Herd Tracks'
+            ],
+            "Mountains": [
+                'Mine', 'Dwarven Outpost', 'Cave System', 'Observatory', 'Dragon Lair', 'Ancient Fortress',
+                'Avalanche Path', 'Goat Trail', 'Glacier Crack', 'Monastery in the Peaks', 'Collapsed Tunnel',
+                'Meteor Crater', 'Hermit’s Peak', 'Frozen Waterfall', 'Crystal Cavern', 'Abandoned Lift',
+                'Mountain Shrine', 'Troll Bridge', 'Sacred Spire', 'Thundering Pass', 'Eagle’s Eyrie',
+                'Smuggler Hideout', 'Snow Leopard Ledge', 'Highlander Camp', 'Lava Vent', 'Seismic Altar',
+                'Frost Giant Camp', 'Ridge Camp', 'Scree Field', 'Runestone Slab', 'Haunted Pass',
+                'Storm Watch Tower', 'Permafrost Crypt', 'Stalactite Forest', 'Lonely Cabin', 'Miners’ Graveyard',
+                'Orc Warcamp', 'Fog Chasm', 'Magma Chamber', 'Glinting Cliffside', 'Collapsed Rope Bridge',
+                'Beacon Tower', 'Goat Bones Pile', 'Abandoned Siege Engine', 'Falling Rock Zone',
+                'Thunderbird Nest', 'Deep Echo Cavern', 'Hidden Dwarf Vault', 'Ice Spider Lair'
+            ],
+            "Hills": [
+                'Watchtower', 'Shepherd\'s Hut', 'Burial Mound', 'Old Ruins', 'Hillside Village', 'Stone Quarry',
+                'Smuggler\'s Tunnel', 'Rolling Cairns', 'Wind-Cut Pass', 'Hilltop Shrine', 'Scout Post',
+                'Overgrown Barrows', 'Thistle Patch', 'Crumbling Mill', 'Stone Circles', 'Bandit Lookout',
+                'Wild Horse Herd', 'Traveler\'s Shrine', 'Witch\'s Circle', 'Mossy Caves', 'Singing Ridge',
+                'Lichen Gully', 'Cave of Whispers', 'Rockslide Path', 'Lone Pine Peak', 'Hermit\'s Nook',
+                'Goatherd Camp', 'Hidden Spring', 'Storm-Touched Hill', 'Old Battlefield Rise',
+                'Lightning-Struck Tree', 'Eroded Crossroads', 'Griffon Roost', 'Scout Firepit',
+                'Ruin-Filled Ravine', 'Buried Stones', 'Wind Chime Ridge', 'Slumbering Titan Face',
+                'Windswept Tumulus', 'Forgotten Farmhouse', 'Hidden Den', 'Runed Stones', 'Wildflower Crest',
+                'Ash-Covered Hill', 'Old Signpost', 'Giant Molehill', 'Thief’s Shortcut', 'Goblin Lookout',
+                'Moonrise Perch'
+            ],
+            "Swamp": [
+                'Witch\'s Hut', 'Alchemist Garden', 'Sunken Temple', 'Will O\' Wisp Grove', 'Bog Iron Mine',
+                'Floating Dock', 'Leech Pond', 'Sunken Library', 'Ghoul Tree', 'Fungal Bog',
+                'Croaking Circle', 'Rotting Cabin', 'Reed Maze', 'Alligator Nest', 'Fog Totem',
+                'Moss-Covered Altar', 'Sinking Statue', 'Vine-Choked Tomb', 'Poison Lily Grove',
+                'Toadfolk Village', 'Brine Bubble Pool', 'Ghost Light Crossing', 'Witchweed Clearing',
+                'Mud-Stained Alchemy Cart', 'Ooze Pool', 'Spore-Storm Zone', 'Snapping Turtle Mound',
+                'Bog Cauldron', 'Whimpering Marsh', 'Decay Shrine', 'Spirit Lantern Grove',
+                'Fungus Tower', 'Mire Sentinel', 'Dragonfly Swarm Nest', 'Hag’s Larder',
+                'Sorrow Roots', 'Gasping Fen', 'Swallowed Bridge', 'Crabfolk Trapline',
+                'Pestilent Spring', 'Wading Stone', 'Sedgefield Grave', 'Smothered Path',
+                'Ghost Croft', 'Cursed Hammock', 'Quagmire Bones', 'Mosquito Mote',
+                'Bloodvine Patch', 'Swampfire Circle'
+            ],
+            "Desert": [
+                'Oasis', 'Nomad Camp', 'Buried Ruins', 'Salt Mine', 'Mirage Pool', 'Sandstone Cliffs',
+                'Camel Graveyard', 'Wind-Cut Canyon', 'Scorpion Nest', 'Crumbling Watchtower',
+                'Sand Trap Dunes', 'Starfall Crater', 'Glass Field', 'Ancient Aquifer',
+                'Whispering Monolith', 'Sun-Bleached Shrine', 'Abandoned Caravansary',
+                'Silt Basin', 'Burned Caravan', 'Sandstorm Altar', 'Snake Pit',
+                'Dune Sea Totem', 'Sunken Vault', 'Trader/s Crossroads', 'Sandwyrm Tunnel',
+                'Ghost Caravan Route', 'Wandering Bones', 'Salt Flat Encampment',
+                'Cactus Grove', 'Beetle Shell Pit', 'Sun Idol', 'Cave of Echoes',
+                'Deserted Bazaar', 'Dry River Gully', 'Golden Dunes', 'Hissing Vents',
+                'Lost Camel Bell', 'Trickster Shrine', 'Dust Maw', 'Razor Ridge',
+                'Nomad Oracle Tent', 'Heat Mirage Idol', 'Crumbling Stone Arch',
+                'Buried Time Temple', 'Windmill Blades', 'Forgotten Route Signpost',
+                'Ritual Pit', 'Desert Glass Tower', 'Wanderer’s Bones'
+            ],
+            "Ocean": [
+                'Shipwreck', 'Coral Reef', 'Sea Cave', 'Lighthouse', 'Fishing Village', 'Hidden Cove',
+                'Kelp Forest', 'Siren Rocks', 'Whale Bones', 'Sunken Observatory', 'Smuggler’s Shipwreck',
+                'Pearl Diver’s Dock', 'Tide Pool Maze', 'Shimmering Whirlpool', 'Crab Shell Isles',
+                'Singing Coral Pillar', 'Lost Sail Shrine', 'Drowned Library', 'Seashell Totem',
+                'Sunken Galleon', 'Giant Clam Nest', 'Saltwater Spring', 'Barnacle Arch',
+                'Leviathan Bones', 'Drifting Cargo', 'Eel Trench', 'Merfolk Ruins',
+                'Bioluminescent Shelf', 'Coral Throne', 'Shark Breeding Grounds',
+                'Abandoned Buoy Post', 'Sea Witch Altar', 'Foam-Covered Cross',
+                'Deep Current Gateway', 'Dolphin Nesting Ground', 'Jellyfish Bloom',
+                'Floating Algae Patch', 'Crashing Tide Column', 'Ghost Sailor Camp',
+                'Squid Nesting Grounds', 'Hidden Harpoon Cache', 'Driftwood Isle',
+                'Sunken Bell Tower', 'Coral Tunnel', 'Mariner’s Grave', 'Ocean Vent',
+                'Sail Fragment Ring', 'Stormwreck Archipelago', 'Gull-Ridden Rocks'
+            ],
+            "River": [
+                'Bridge', 'Ferry Crossing', 'Watermill', 'Fishing Spot', 'River Port', 'Sacred Spring',
+                'Log Raft Camp', 'Flooded Shrine', 'Rapids Watch', 'Eel Trap Weir', 'River Troll Nest',
+                'Old Dam Ruins', 'Mist Dock', 'Whispering Brook', 'Floating Market',
+                'Fishbone Weir', 'Dry Season Crossing', 'Drifted Totem', 'Water Sprite Hollow',
+                'Floodplain Graveyard', 'Silt Nest', 'Wade Point', 'Crystal Ford',
+                'Torrent Cliffs', 'Water Lantern Spot', 'Otter Holt', 'Smuggler/’s Barge',
+                'Reed Boat Dock', 'Drowned Altar', 'River Witch Raft', 'Crocodile Bend',
+                'Singing Falls', 'Fisherfolk Camp', 'Logjam Shelter', 'Sunken Bridge Piles',
+                'Boathouse Ruins', 'Riverside Monolith', 'Damaged Canal Gate',
+                'Flood Marker Obelisk', 'Leaning Pier', 'Mudflat Trail', 'Catfish Pond',
+                'Drifting Effigies', 'Rope Ferry', 'Tide-Touched Root',
+                'Waterside Offering Basket', 'Stone Skip Hollow', 'Spring Maw', 'Torrent Shrine'
+            ]
         };
     }
 
