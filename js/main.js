@@ -95,10 +95,10 @@ class HexMap {
             
             // Add biome icon
             const icon = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-            icon.setAttribute('x', x - 15);
-            icon.setAttribute('y', y - 15);
-            icon.setAttribute('width', 30);
-            icon.setAttribute('height', 30);
+            icon.setAttribute('x', x - 26);
+            icon.setAttribute('y', y - 26);
+            icon.setAttribute('width', 52);
+            icon.setAttribute('height', 52);
             icon.setAttribute('href', iconPath);
             icon.setAttribute('class', 'hex-icon');
             icon.style.pointerEvents = 'none';
