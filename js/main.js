@@ -3,8 +3,8 @@ class HexMap {
         this.hexSize = 30;
         this.hexes = new Map();
         this.svg = document.getElementById('hex-grid');
-        this.modal = document.getElementById('hex-modal');
         this.currentHex = null;
+        this.selectedHexElement = null;
         
         this.initializeMap();
         this.setupEventListeners();
@@ -53,7 +53,7 @@ class HexMap {
         hexGroup.appendChild(hexagon);
         hexGroup.appendChild(text);
         
-        hexagon.addEventListener('click', () => this.openHexModal(hexKey));
+        hexagon.addEventListener('click', () => this.selectHex(hexKey, hexagon));
         
         this.svg.appendChild(hexGroup);
         
@@ -77,48 +77,78 @@ class HexMap {
         return points.join(' ');
     }
 
-    openHexModal(hexKey) {
+    selectHex(hexKey, hexElement) {
+        // Remove previous selection
+        if (this.selectedHexElement) {
+            this.selectedHexElement.classList.remove('selected');
+        }
+        
+        // Set new selection
         this.currentHex = hexKey;
+        this.selectedHexElement = hexElement;
+        hexElement.classList.add('selected');
+        
+        // Update info panel
+        this.updateInfoPanel(hexKey);
+        this.updateNeighborsDisplay(hexKey);
+    }
+    
+    updateInfoPanel(hexKey) {
         const hexData = this.hexes.get(hexKey) || { biome: 'Unexplored', feature: '', notes: '' };
         
-        document.getElementById('hex-biome').textContent = hexData.biome;
-        document.getElementById('hex-feature').textContent = hexData.feature || 'None';
+        // Show hex details
+        document.getElementById('selected-hex-info').style.display = 'none';
+        document.getElementById('hex-details').style.display = 'block';
+        
+        // Update form fields
+        document.getElementById('hex-coords').textContent = hexKey;
+        document.getElementById('hex-biome').value = hexData.biome;
+        document.getElementById('hex-feature').value = hexData.feature || '';
         document.getElementById('hex-notes').value = hexData.notes || '';
-        
-        this.generateNeighborInsights(hexKey);
-        
-        this.modal.style.display = 'block';
     }
 
-    generateNeighborInsights(hexKey) {
+    updateNeighborsDisplay(hexKey) {
         const [col, row] = hexKey.split(',').map(Number);
         const neighbors = this.getNeighbors(col, row);
-        const neighborsDiv = document.getElementById('hex-neighbors');
+        const neighborsGrid = document.getElementById('neighbors-grid');
+        const directions = ['NW', 'N', 'NE', 'SW', 'S', 'SE'];
+        const gridPositions = [0, 1, 2, 3, 5, 4]; // Grid layout positions
         
-        let insights = [];
-        const directions = ['north', 'northeast', 'southeast', 'south', 'southwest', 'northwest'];
+        neighborsGrid.innerHTML = '';
         
-        neighbors.forEach((neighborKey, index) => {
+        // Create 6 neighbor slots
+        for (let i = 0; i < 6; i++) {
+            const neighborDiv = document.createElement('div');
+            neighborDiv.className = 'neighbor-hex';
+            
+            const neighborKey = neighbors[i];
+            const direction = directions[i];
+            
             if (neighborKey && this.hexes.has(neighborKey)) {
                 const neighborData = this.hexes.get(neighborKey);
-                if (neighborData.biome !== 'Unexplored') {
-                    const direction = directions[index];
-                    let insight = `To the ${direction}, `;
-                    
-                    if (neighborData.biome && neighborData.feature) {
-                        insight += `you see ${neighborData.biome.toLowerCase()} with ${neighborData.feature.toLowerCase()}.`;
-                    } else if (neighborData.biome) {
-                        insight += `you see ${neighborData.biome.toLowerCase()}.`;
+                
+                neighborDiv.innerHTML = `
+                    <div class="neighbor-direction">${direction}</div>
+                    <div class="neighbor-biome">${neighborData.biome}</div>
+                    ${neighborData.feature ? `<div class="neighbor-feature">${neighborData.feature}</div>` : ''}
+                `;
+                
+                neighborDiv.addEventListener('click', () => {
+                    const neighborElement = document.querySelector(`[data-hex="${neighborKey}"]`);
+                    if (neighborElement) {
+                        this.selectHex(neighborKey, neighborElement);
                     }
-                    
-                    insights.push(insight);
-                }
+                });
+            } else {
+                neighborDiv.className = 'neighbor-hex empty';
+                neighborDiv.innerHTML = `
+                    <div class="neighbor-direction">${direction}</div>
+                    <div class="neighbor-biome">---</div>
+                `;
             }
-        });
-        
-        neighborsDiv.textContent = insights.length > 0 
-            ? insights.join(' ') 
-            : 'The surrounding areas remain unexplored...';
+            
+            neighborsGrid.appendChild(neighborDiv);
+        }
     }
 
     getNeighbors(col, row) {
@@ -147,35 +177,59 @@ class HexMap {
     saveHexData() {
         if (!this.currentHex) return;
         
+        const biome = document.getElementById('hex-biome').value;
+        const feature = document.getElementById('hex-feature').value;
         const notes = document.getElementById('hex-notes').value;
-        const hexData = this.hexes.get(this.currentHex);
         
-        hexData.notes = notes;
+        const hexData = {
+            biome: biome,
+            feature: feature,
+            notes: notes
+        };
+        
         this.hexes.set(this.currentHex, hexData);
-        
         this.saveToLocalStorage();
-        this.closeModal();
+        
+        // Update neighbors display to reflect changes
+        this.updateNeighborsDisplay(this.currentHex);
+        
+        // Update any neighbor displays that might show this hex
+        this.refreshNeighborDisplays();
+    }
+    
+    refreshNeighborDisplays() {
+        // If we have a selected hex, refresh its neighbor display
+        if (this.currentHex) {
+            this.updateNeighborsDisplay(this.currentHex);
+        }
     }
 
     setupEventListeners() {
-        const closeBtn = document.querySelector('.close');
         const saveBtn = document.getElementById('save-hex');
-        const cancelBtn = document.getElementById('cancel-hex');
-        
-        closeBtn.addEventListener('click', () => this.closeModal());
         saveBtn.addEventListener('click', () => this.saveHexData());
-        cancelBtn.addEventListener('click', () => this.closeModal());
         
-        window.addEventListener('click', (event) => {
-            if (event.target === this.modal) {
-                this.closeModal();
-            }
-        });
+        // Auto-save on field changes
+        const biomeSelect = document.getElementById('hex-biome');
+        const featureInput = document.getElementById('hex-feature');
+        const notesTextarea = document.getElementById('hex-notes');
+        
+        biomeSelect.addEventListener('change', () => this.saveHexData());
+        featureInput.addEventListener('blur', () => this.saveHexData());
+        notesTextarea.addEventListener('blur', () => this.saveHexData());
     }
 
-    closeModal() {
-        this.modal.style.display = 'none';
+    clearSelection() {
+        if (this.selectedHexElement) {
+            this.selectedHexElement.classList.remove('selected');
+            this.selectedHexElement = null;
+        }
+        
         this.currentHex = null;
+        
+        // Hide hex details and show default message
+        document.getElementById('hex-details').style.display = 'none';
+        document.getElementById('selected-hex-info').style.display = 'block';
+        document.getElementById('neighbors-grid').innerHTML = '';
     }
 
     saveToLocalStorage() {

@@ -57,9 +57,31 @@ header h1 {
 }
 
 main {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 0;
+    max-width: none;
+    margin: 0;
+    height: calc(100vh - 80px);
+}
+
+/* Split Layout Styles */
+.split-layout {
+    display: flex;
+    height: 100%;
+}
+
+.map-section {
+    flex: 2;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.info-section {
+    flex: 1;
+    background: var(--parchment-dark);
+    border-left: 3px solid var(--border-brown);
+    padding: 1rem;
+    overflow-y: auto;
+    min-width: 300px;
 }
 
 /* Hex Grid Styles */
@@ -69,11 +91,15 @@ main {
     border-radius: 8px;
     padding: 1rem;
     box-shadow: inset 0 0 10px rgba(139, 105, 20, 0.2);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 #hex-grid {
     width: 100%;
-    height: 600px;
+    flex: 1;
+    min-height: 500px;
     background: radial-gradient(circle at 50% 50%, var(--parchment-bg) 0%, var(--parchment-dark) 100%);
 }
 
@@ -90,6 +116,12 @@ main {
     stroke-width: 2;
 }
 
+.hex.selected {
+    fill: var(--accent-gold);
+    stroke: var(--ink-dark);
+    stroke-width: 2.5;
+}
+
 .hex-text {
     font-family: 'Cinzel', serif;
     font-size: 10px;
@@ -98,61 +130,55 @@ main {
     pointer-events: none;
 }
 
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
+/* Info Panel Styles */
+.hex-info-panel {
     height: 100%;
-    background-color: rgba(44, 24, 16, 0.5);
+    display: flex;
+    flex-direction: column;
 }
 
-.modal-content {
-    background: var(--parchment-bg);
-    margin: 5% auto;
-    padding: 2rem;
-    border: 3px solid var(--border-brown);
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 4px 20px rgba(139, 105, 20, 0.4);
-}
-
-.close {
-    color: var(--ink-medium);
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.close:hover {
-    color: var(--ink-dark);
-}
-
-.modal-content h2 {
+.hex-info-panel h2 {
     font-family: 'Uncial Antiqua', cursive;
     margin-bottom: 1rem;
     color: var(--ink-dark);
+    text-align: center;
 }
 
-.info-section {
+.selected-hex {
+    background: var(--parchment-bg);
+    border: 2px solid var(--border-brown);
+    border-radius: 8px;
+    padding: 1rem;
     margin-bottom: 1rem;
 }
 
-.info-section label {
+.no-selection {
+    text-align: center;
+    color: var(--ink-medium);
+    font-style: italic;
+}
+
+.hex-details {
+    background: var(--parchment-bg);
+    border: 2px solid var(--border-brown);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.detail-group {
+    margin-bottom: 1rem;
+}
+
+.detail-group label {
     display: block;
     font-weight: 600;
     margin-bottom: 0.25rem;
     color: var(--ink-medium);
 }
 
-.info-section span, .info-section textarea {
-    display: block;
+.detail-group input, .detail-group select, .detail-group textarea {
+    width: 100%;
     padding: 0.5rem;
     background: var(--parchment-dark);
     border: 1px solid var(--border-brown);
@@ -161,26 +187,80 @@ main {
     color: var(--ink-dark);
 }
 
-.info-section textarea {
-    width: 100%;
+.detail-group textarea {
     resize: vertical;
     min-height: 60px;
 }
 
-.neighbors-info {
-    font-style: italic;
-    color: var(--ink-medium);
-    padding: 0.5rem;
-    background: var(--parchment-dark);
-    border-radius: 4px;
-    border: 1px solid var(--border-brown);
+.detail-actions {
+    margin-top: 1rem;
+    text-align: center;
 }
 
-.modal-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
+.neighbors-section {
+    flex: 1;
+    margin-top: 1rem;
+}
+
+.neighbors-section h3 {
+    font-family: 'Uncial Antiqua', cursive;
+    margin-bottom: 1rem;
+    color: var(--ink-dark);
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.neighbors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.neighbor-hex {
+    background: var(--parchment-bg);
+    border: 1px solid var(--border-brown);
+    border-radius: 4px;
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.neighbor-hex:hover {
+    background: var(--accent-gold);
+    transform: scale(1.05);
+}
+
+.neighbor-hex.empty {
+    background: var(--parchment-dark);
+    color: var(--ink-medium);
+    cursor: default;
+}
+
+.neighbor-hex.empty:hover {
+    background: var(--parchment-dark);
+    transform: none;
+}
+
+.neighbor-direction {
+    font-weight: 600;
+    color: var(--ink-medium);
+    font-size: 0.7rem;
+    margin-bottom: 0.25rem;
+}
+
+.neighbor-biome {
+    font-weight: 600;
+    color: var(--ink-dark);
+}
+
+.neighbor-feature {
+    color: var(--ink-medium);
+    font-style: italic;
+    font-size: 0.7rem;
 }
 
 button {
@@ -212,6 +292,8 @@ button.danger:hover {
 /* Settings Page Styles */
 .settings-main {
     max-width: 800px;
+    padding: 2rem;
+    margin: 0 auto;
 }
 
 .settings-section {
@@ -273,14 +355,26 @@ button.danger:hover {
         font-size: 1.5rem;
     }
 
-    main {
-        padding: 1rem;
+    .split-layout {
+        flex-direction: column;
     }
 
-    .modal-content {
-        width: 95%;
-        margin: 2% auto;
-        padding: 1rem;
+    .map-section {
+        flex: 1;
+        height: 60vh;
+    }
+
+    .info-section {
+        flex: none;
+        height: 40vh;
+        border-left: none;
+        border-top: 3px solid var(--border-brown);
+        min-width: auto;
+    }
+
+    .neighbors-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 250px;
     }
 
     .control-group {

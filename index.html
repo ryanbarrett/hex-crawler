@@ -15,41 +15,63 @@
         </nav>
     </header>
     
-    <main>
-        <div id="map-container">
-            <svg id="hex-grid" viewBox="0 0 800 600"></svg>
+    <main class="split-layout">
+        <div class="map-section">
+            <div id="map-container">
+                <svg id="hex-grid" viewBox="0 0 800 600"></svg>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="hex-info-panel">
+                <h2>Hex Information</h2>
+                <div id="selected-hex-info" class="selected-hex">
+                    <p class="no-selection">Click a hex to view information</p>
+                </div>
+                
+                <div id="hex-details" class="hex-details" style="display: none;">
+                    <div class="detail-group">
+                        <label>Coordinates:</label>
+                        <span id="hex-coords">-</span>
+                    </div>
+                    <div class="detail-group">
+                        <label>Biome:</label>
+                        <select id="hex-biome">
+                            <option value="Unexplored">Unexplored</option>
+                            <option value="Forest">Forest</option>
+                            <option value="Plains">Plains</option>
+                            <option value="Mountains">Mountains</option>
+                            <option value="Hills">Hills</option>
+                            <option value="Swamp">Swamp</option>
+                            <option value="Desert">Desert</option>
+                            <option value="Tundra">Tundra</option>
+                            <option value="Jungle">Jungle</option>
+                            <option value="Ocean">Ocean</option>
+                            <option value="River">River</option>
+                        </select>
+                    </div>
+                    <div class="detail-group">
+                        <label>Feature:</label>
+                        <input type="text" id="hex-feature" placeholder="e.g., Ruins, Town, Cave">
+                    </div>
+                    <div class="detail-group">
+                        <label>Notes:</label>
+                        <textarea id="hex-notes" rows="3" placeholder="Add your notes here..."></textarea>
+                    </div>
+                    <div class="detail-actions">
+                        <button id="save-hex">Save Changes</button>
+                    </div>
+                </div>
+                
+                <div class="neighbors-section">
+                    <h3>Neighboring Hexes</h3>
+                    <div id="neighbors-grid" class="neighbors-grid">
+                        <!-- Neighbors will be populated here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
-
-    <!-- Hex Info Modal -->
-    <div id="hex-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Hex Information</h2>
-            <div class="hex-info">
-                <div class="info-section">
-                    <label>Biome:</label>
-                    <span id="hex-biome">-</span>
-                </div>
-                <div class="info-section">
-                    <label>Feature:</label>
-                    <span id="hex-feature">-</span>
-                </div>
-                <div class="info-section">
-                    <label>Notes:</label>
-                    <textarea id="hex-notes" rows="3" placeholder="Add your notes here..."></textarea>
-                </div>
-                <div class="info-section">
-                    <label>Neighbors:</label>
-                    <div id="hex-neighbors" class="neighbors-info"></div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button id="save-hex">Save</button>
-                <button id="cancel-hex">Cancel</button>
-            </div>
-        </div>
-    </div>
 
     <script src="js/main.js"></script>
 </body>
