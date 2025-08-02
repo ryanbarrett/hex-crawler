@@ -60,3 +60,13 @@ Example: If North hex is Hills + River + Town:
 ## Gitignore
 
 ignore anything that's not necessary to reproduce the app.
+
+
+## TODO
+
+- [ ] Randomize feature for current hex
+- [ ] Add a road feature that connects from one side of the map to the other, N to S or E to W.
+- [ ] Add a river feature that connects from one side of the map to the other, N to S or E to W. or from Mountain to an edge of the map.
+- [ ] Add a mountain feature that allows viewing neighboring hexes +1. Instead of neighboring hexes only showing 6, 18 would be shown. 
+
+

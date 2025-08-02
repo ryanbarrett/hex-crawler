@@ -1,6 +1,6 @@
 class HexMap {
     constructor() {
-        this.hexSize = 30;
+        this.hexSize = 37;
         this.hexes = new Map();
         this.svg = document.getElementById('hex-grid');
         this.currentHex = null;
@@ -29,7 +29,7 @@ class HexMap {
 
     generateHexGrid() {
         const cols = 12;
-        const rows = 8;
+        const rows = 12;
         const hexHeight = this.hexSize * Math.sqrt(3);
         const hexWidth = this.hexSize * 2;
         
@@ -37,8 +37,8 @@ class HexMap {
         
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
-                const x = col * (hexWidth * 0.75) + 60;
-                const y = row * hexHeight + (col % 2 === 1 ? hexHeight / 2 : 0) + 60;
+                const x = col * (hexWidth * 0.75) + 50;
+                const y = row * hexHeight + (col % 2 === 1 ? hexHeight / 2 : 0) + 30;
                 
                 const hexKey = `${col},${row}`;
                 this.createHex(x, y, hexKey);
@@ -95,10 +95,10 @@ class HexMap {
             
             // Add biome icon
             const icon = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-            icon.setAttribute('x', x - 26);
-            icon.setAttribute('y', y - 26);
-            icon.setAttribute('width', 52);
-            icon.setAttribute('height', 52);
+            icon.setAttribute('x', x - 38);
+            icon.setAttribute('y', y - 38);
+            icon.setAttribute('width', 76);
+            icon.setAttribute('height', 76);
             icon.setAttribute('href', iconPath);
             icon.setAttribute('class', 'hex-icon');
             icon.style.pointerEvents = 'none';
@@ -283,8 +283,8 @@ class HexMap {
             const [col, row] = hexKey.split(',').map(Number);
             const hexHeight = this.hexSize * Math.sqrt(3);
             const hexWidth = this.hexSize * 2;
-            const x = col * (hexWidth * 0.75) + 60;
-            const y = row * hexHeight + (col % 2 === 1 ? hexHeight / 2 : 0) + 60;
+            const x = col * (hexWidth * 0.75) + 50;
+            const y = row * hexHeight + (col % 2 === 1 ? hexHeight / 2 : 0) + 30;
             
             this.updateHexDisplay(hexGroup, hexKey, x, y);
         }

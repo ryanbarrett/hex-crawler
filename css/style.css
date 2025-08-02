@@ -70,13 +70,13 @@ main {
 }
 
 .map-section {
-    flex: 2;
+    flex: 0 0 55%;
     padding: 1rem;
     overflow: hidden;
 }
 
 .info-section {
-    flex: 1;
+    flex: 0 0 45%;
     background: var(--parchment-dark);
     border-left: 3px solid var(--border-brown);
     padding: 1rem;

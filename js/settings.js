@@ -248,7 +248,7 @@ class MapSettings {
         const generator = new MapGenerator(seed);
         const generatedHexes = generator.generateMap({
             cols: 12,
-            rows: 8,
+            rows: 12,
             terrainDensity,
             featureDensity,
             waterAmount
