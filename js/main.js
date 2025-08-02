@@ -494,6 +494,9 @@ class HexMap {
         if (this.explorationMode) {
             this.updateHexVisibility();
         }
+        
+        // Check starting point prompt
+        this.checkForStartingPointPrompt();
     }
 
     saveHexData() {
@@ -558,6 +561,9 @@ class HexMap {
         
         const exploreBtn = document.getElementById('explore-hex');
         exploreBtn.addEventListener('click', () => this.exploreHex());
+        
+        const fogToggleBtn = document.getElementById('fog-of-war-toggle');
+        fogToggleBtn.addEventListener('click', () => this.toggleFogOfWar());
         
         // Auto-save on field changes
         const biomeSelect = document.getElementById('hex-biome');
@@ -628,6 +634,36 @@ class HexMap {
         }
     }
     
+    toggleFogOfWar() {
+        this.explorationMode = !this.explorationMode;
+        this.updateFogToggleButton();
+        this.updateHexVisibility();
+        this.saveToLocalStorage();
+    }
+
+    updateFogToggleButton() {
+        const fogToggleBtn = document.getElementById('fog-of-war-toggle');
+        if (this.explorationMode) {
+            fogToggleBtn.textContent = 'Fog of War: On';
+            fogToggleBtn.classList.add('active');
+        } else {
+            fogToggleBtn.textContent = 'Fog of War: Off';
+            fogToggleBtn.classList.remove('active');
+        }
+    }
+
+    checkForStartingPointPrompt() {
+        // Check if all hexes are unexplored (no explored hexes exist)
+        const hasExploredHexes = Array.from(this.hexes.values()).some(hex => hex.explored);
+        const promptDiv = document.getElementById('starting-point-prompt');
+        
+        if (!hasExploredHexes) {
+            promptDiv.style.display = 'block';
+        } else {
+            promptDiv.style.display = 'none';
+        }
+    }
+
     refreshAllHexDisplays() {
         // Update all hexes to show their biome icons
         this.hexes.forEach((hexData, hexKey) => {
@@ -636,10 +672,16 @@ class HexMap {
             }
         });
         
+        // Update fog toggle button state
+        this.updateFogToggleButton();
+        
         // Update visibility if exploration mode is enabled
         if (this.explorationMode) {
             this.updateHexVisibility();
         }
+        
+        // Check if we should show starting point prompt
+        this.checkForStartingPointPrompt();
     }
     
     setupMessageListener() {
@@ -697,6 +739,9 @@ class HexMap {
         if (this.explorationMode) {
             this.updateHexVisibility();
         }
+        
+        // Check starting point prompt
+        this.checkForStartingPointPrompt();
     }
     
     getVisibleHexes() {

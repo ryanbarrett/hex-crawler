@@ -36,25 +36,33 @@
             </div>
         </section>
 
-        <section class="settings-section">
+        <section class="settings-section" id="exploration-mode">
             <h2>Exploration Mode</h2>
             <div class="exploration-controls">
                 <div class="control-group">
-                    <label>
-                        <input type="checkbox" id="exploration-mode" style="margin-right: 0.5rem;">
-                        Enable Fog of War
-                    </label>
-                    <small>Hide unexplored hexes and only show explored hexes and their neighbors</small>
-                </div>
-                <div class="control-group">
                     <label for="starting-point-col">Starting Point (2d12):</label>
                     <div class="starting-point-inputs">
-                        <input type="number" id="starting-point-col" min="1" max="12" value="1">
+                        <input type="number" id="starting-point-col" min="1" max="12" placeholder="Col">
                         <span class="coordinate-separator">,</span>
-                        <input type="number" id="starting-point-row" min="1" max="12" value="1">
+                        <input type="number" id="starting-point-row" min="1" max="12" placeholder="Row">
                         <button type="button" id="roll-starting-point">Roll 2d12</button>
                     </div>
                     <small>Roll 2d12 to randomly determine starting coordinates (defaults to 1,1)</small>
+                </div>
+                <div class="control-group">
+                    <label>Quick Edge Selection:</label>
+                    <div class="edge-selection-grid">
+                        <button type="button" class="edge-btn" data-coords="1,1">NW<br>1,1</button>
+                        <button type="button" class="edge-btn" data-coords="6,1">N<br>6,1</button>
+                        <button type="button" class="edge-btn" data-coords="12,1">NE<br>12,1</button>
+                        <button type="button" class="edge-btn" data-coords="1,6">W<br>1,6</button>
+                        <button type="button" class="edge-btn center-btn" data-coords="6,6">Center<br>6,6</button>
+                        <button type="button" class="edge-btn" data-coords="12,6">E<br>12,6</button>
+                        <button type="button" class="edge-btn" data-coords="1,12">SW<br>1,12</button>
+                        <button type="button" class="edge-btn" data-coords="6,12">S<br>6,12</button>
+                        <button type="button" class="edge-btn" data-coords="12,12">SE<br>12,12</button>
+                    </div>
+                    <small>Click any position to set starting point coordinates</small>
                 </div>
                 <div class="control-group">
                     <button id="set-starting-point" class="primary">Set Starting Point</button>

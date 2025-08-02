@@ -3,6 +3,7 @@ class MapSettings {
         this.mapData = this.loadMapData();
         this.setupEventListeners();
         this.updateMapSelect();
+        this.updateSetStartingPointButton();
     }
 
     loadMapData() {
@@ -45,12 +46,6 @@ class MapSettings {
             }
             select.appendChild(option);
         });
-        
-        // Update exploration mode checkbox
-        const explorationModeCheckbox = document.getElementById('exploration-mode');
-        if (explorationModeCheckbox) {
-            explorationModeCheckbox.checked = this.mapData.explorationMode || false;
-        }
     }
 
     createMap() {
@@ -268,21 +263,6 @@ class MapSettings {
         alert(`Random map generated successfully with seed: ${seed}`);
     }
 
-    toggleExplorationMode() {
-        const explorationModeCheckbox = document.getElementById('exploration-mode');
-        this.mapData.explorationMode = explorationModeCheckbox.checked;
-        this.saveMapData();
-        
-        // Send message to main window if it exists (for live updates)
-        if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({
-                type: 'explorationModeChanged',
-                explorationMode: this.mapData.explorationMode
-            }, '*');
-        }
-        
-        alert(`Exploration mode ${this.mapData.explorationMode ? 'enabled' : 'disabled'}. Return to the main map to see changes.`);
-    }
 
     rollStartingPoint() {
         // Roll 2d12 (1-12 each)
@@ -292,7 +272,35 @@ class MapSettings {
         document.getElementById('starting-point-col').value = col;
         document.getElementById('starting-point-row').value = row;
         
+        this.updateSetStartingPointButton();
+        
         alert(`Rolled: ${col}, ${row}`);
+    }
+
+    selectEdgePosition(coords) {
+        const [col, row] = coords.split(',').map(Number);
+        
+        document.getElementById('starting-point-col').value = col;
+        document.getElementById('starting-point-row').value = row;
+        
+        this.updateSetStartingPointButton();
+    }
+
+    updateSetStartingPointButton() {
+        const colInput = document.getElementById('starting-point-col');
+        const rowInput = document.getElementById('starting-point-row');
+        const setButton = document.getElementById('set-starting-point');
+        
+        const colValue = colInput.value.trim();
+        const rowValue = rowInput.value.trim();
+        
+        if (colValue && rowValue && colValue >= 1 && colValue <= 12 && rowValue >= 1 && rowValue <= 12) {
+            setButton.disabled = false;
+            setButton.classList.remove('disabled');
+        } else {
+            setButton.disabled = true;
+            setButton.classList.add('disabled');
+        }
     }
 
     setStartingPoint() {
@@ -560,9 +568,20 @@ class MapSettings {
         document.getElementById('import-file').addEventListener('change', (e) => this.handleFileImport(e));
         
         // Exploration mode event listeners
-        document.getElementById('exploration-mode').addEventListener('change', () => this.toggleExplorationMode());
         document.getElementById('roll-starting-point').addEventListener('click', () => this.rollStartingPoint());
         document.getElementById('set-starting-point').addEventListener('click', () => this.setStartingPoint());
+        
+        // Edge selection button listeners
+        document.querySelectorAll('.edge-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const coords = btn.getAttribute('data-coords');
+                this.selectEdgePosition(coords);
+            });
+        });
+        
+        // Input field listeners for manual entry
+        document.getElementById('starting-point-col').addEventListener('input', () => this.updateSetStartingPointButton());
+        document.getElementById('starting-point-row').addEventListener('input', () => this.updateSetStartingPointButton());
         
         // Map generator event listeners
         document.getElementById('random-seed').addEventListener('click', () => this.generateRandomSeed());

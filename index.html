@@ -11,12 +11,18 @@
     <header>
         <h1>HexMap Viewer</h1>
         <nav>
+            <button id="fog-of-war-toggle" class="fog-toggle">Fog of War: Off</button>
             <a href="settings.html" class="settings-link">Settings</a>
         </nav>
     </header>
     
     <main class="split-layout">
         <div class="map-section">
+            <div id="starting-point-prompt" class="starting-point-prompt" style="display: none;">
+                <h3>🗺️ Unexplored Territory</h3>
+                <p>This map is completely unexplored. Set your starting point to begin your adventure!</p>
+                <a href="settings.html#exploration-mode" class="primary-link">Set Starting Point</a>
+            </div>
             <div id="map-container">
                 <svg id="hex-grid" viewBox="0 0 800 800"></svg>
             </div>
